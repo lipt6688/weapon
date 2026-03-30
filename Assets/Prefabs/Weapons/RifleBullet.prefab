@@ -154,6 +154,11 @@ MonoBehaviour:
   maxAttack: 10
   lifeTime: 1.5
   isPiercing: 0
+  knockbackForce: 0
+  projectileTint: {r: 1, g: 1, b: 1, a: 1}
+  useDamageFalloff: 0
+  falloffStartRatio: 0.35
+  minDamageMultiplier: 0.55
   hitEffect: {fileID: 300183907119714765, guid: 8d790661fe834492d83bbb3b8ddf529d,
     type: 3}
   damageCanvas: {fileID: 7936732953314212045, guid: da28eab5800ab468e8f382f3ba0dfb5e,

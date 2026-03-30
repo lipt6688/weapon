@@ -2285,6 +2285,7 @@ MonoBehaviour:
   gatlingModeKey: 51
   knockbackModeKey: 52
   cannonModeKey: 53
+  shotgunModeKey: 54
   saberVisual: {fileID: 808776462}
   saberWeaponSprite: {fileID: 21300000, guid: 7ab0b8e590724a2ab11a95f1a2f9f46d, type: 3}
   saberSortingOrder: 200
@@ -2296,7 +2297,7 @@ MonoBehaviour:
   saberMaxAttack: 38
   saberHitRadius: 0.9
   rifleVisual: {fileID: 1766238149}
-  rifleAttackRate: 0.8
+  rifleAttackRate: 1.6
   rifleAttackRange: 18
   rifleBulletSpeed: 45
   rifleMinDamage: 90
@@ -2309,6 +2310,22 @@ MonoBehaviour:
   cannonMinDamage: 45
   cannonMaxDamage: 75
   cannonballPrefab: {fileID: 6617758943155987166, guid: e958431909adff015918818261d3f9d8,
+    type: 3}
+  shotgunVisual: {fileID: 0}
+  shotgunWeaponSprite: {fileID: 21300000, guid: 4dcb2c4b9fdd4f1b8d2cb88880ec0191,
+    type: 3}
+  shotgunCooldown: 1.8
+  shotgunRange: 7
+  shotgunClusterRadius: 2.2
+  shotgunPelletCount: 6
+  shotgunSpreadAngle: 24
+  shotgunBulletSpeed: 24
+  shotgunMinDamage: 22
+  shotgunMaxDamage: 32
+  shotgunKnockbackForce: 3.2
+  shotgunVisualScale: 1
+  shotgunProjectileColor: {r: 1, g: 0.75, b: 0.2, a: 1}
+  shotgunBulletPrefab: {fileID: 6929075588084033075, guid: bed9ff2216bb1160386a20a4fb0190e5,
     type: 3}
   gatlingVisual: {fileID: 1319742791}
   gatlingAttackRate: 20

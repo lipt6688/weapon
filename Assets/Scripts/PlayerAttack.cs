@@ -11,10 +11,11 @@ public class PlayerAttack : MonoBehaviour
         Saber = 2,
         Gatling = 3,
         Knockback = 4,
-        Cannon = 5
+        Cannon = 5,
+        Shotgun = 6
     }
 
-    [Header("武器测试模式 (0全开, 1步枪, 2突刺, 3加特林, 4击退, 5大炮)")]
+    [Header("武器测试模式 (0全开, 1步枪, 2突刺, 3加特林, 4击退, 5大炮, 6喷子)")]
     public WeaponTestMode testMode = WeaponTestMode.All;
     public KeyCode allWeaponsKey = KeyCode.Alpha0;
     public KeyCode rifleModeKey = KeyCode.Alpha1;
@@ -22,6 +23,7 @@ public class PlayerAttack : MonoBehaviour
     public KeyCode gatlingModeKey = KeyCode.Alpha3;
     public KeyCode knockbackModeKey = KeyCode.Alpha4;
     public KeyCode cannonModeKey = KeyCode.Alpha5;
+    public KeyCode shotgunModeKey = KeyCode.Alpha6;
 
     [Header("0. 主武器: 固定方向突刺剑 (外形使用光剑)")]
     public GameObject saberVisual;
@@ -43,7 +45,7 @@ public class PlayerAttack : MonoBehaviour
 
     [Header("1. 步枪 (狙击枪: 高伤害/低射速)")]
     public GameObject rifleVisual;
-    public float rifleAttackRate = 0.99f;
+    public float rifleAttackRate = 1.6f;
     [Tooltip("步枪的最远射程限制")]
     public float rifleAttackRange = 18f;
     public float rifleBulletSpeed = 45f;
@@ -60,6 +62,23 @@ public class PlayerAttack : MonoBehaviour
     public int cannonMaxDamage = 260;
     public GameObject cannonballPrefab;
     private float nextCannonTime;
+
+    [Header("6. 喷子 (锁定敌群最密集点, 近距离多弹丸, 带击退)")]
+    public GameObject shotgunVisual;
+    public Sprite shotgunWeaponSprite;
+    public float shotgunCooldown = 1.8f;
+    public float shotgunRange = 7f;
+    public float shotgunClusterRadius = 2.2f;
+    public int shotgunPelletCount = 6;
+    public float shotgunSpreadAngle = 24f;
+    public float shotgunBulletSpeed = 24f;
+    public int shotgunMinDamage = 22;
+    public int shotgunMaxDamage = 32;
+    public float shotgunKnockbackForce = 3.2f;
+    public float shotgunVisualScale = 1.0f;
+    public Color shotgunProjectileColor = new Color(1f, 0.75f, 0.2f, 1f);
+    public GameObject shotgunBulletPrefab;
+    private float nextShotgunTime;
 
     [Header("4. 加特林 (仿步枪: 环绕旋转, 高速低伤)")]
     public GameObject gatlingVisual;
@@ -128,8 +147,34 @@ public class PlayerAttack : MonoBehaviour
             knockbackWeaponVisual = generated;
         }
 
+        if (shotgunVisual == null)
+        {
+            GameObject generated = new GameObject("ShotgunVisual");
+            generated.transform.SetParent(transform, false);
+            SpriteRenderer sr = generated.AddComponent<SpriteRenderer>();
+            if (shotgunWeaponSprite != null)
+            {
+                sr.sprite = shotgunWeaponSprite;
+            }
+            else if (rifleVisual != null)
+            {
+                SpriteRenderer rifleSr = rifleVisual.GetComponent<SpriteRenderer>();
+                if (rifleSr != null)
+                {
+                    sr.sprite = rifleSr.sprite;
+                }
+            }
+
+            sr.sortingOrder = saberSortingOrder;
+            sr.enabled = true;
+            sr.color = Color.white;
+            generated.transform.localScale = Vector3.one * shotgunVisualScale;
+            shotgunVisual = generated;
+        }
+
         ApplyWeaponSprites();
         EnsureSaberVisualReady();
+        EnsureShotgunVisualReady();
     }
 
     private void Update()
@@ -145,6 +190,7 @@ public class PlayerAttack : MonoBehaviour
         bool cannonEnabled = IsWeaponEnabled(WeaponTestMode.Cannon);
         bool gatlingEnabled = IsWeaponEnabled(WeaponTestMode.Gatling);
         bool knockbackEnabled = IsWeaponEnabled(WeaponTestMode.Knockback);
+        bool shotgunEnabled = IsWeaponEnabled(WeaponTestMode.Shotgun);
 
         if (saberEnabled)
         {
@@ -205,6 +251,16 @@ public class PlayerAttack : MonoBehaviour
             }
         }
 
+        if (shotgunVisual != null)
+        {
+            shotgunVisual.SetActive(shotgunEnabled);
+            if (shotgunEnabled)
+            {
+                EnsureShotgunVisualReady();
+                UpdateShotgunAttack();
+            }
+        }
+
         if (knockbackEnabled)
         {
             if (knockbackWeaponVisual != null) knockbackWeaponVisual.SetActive(true);
@@ -251,6 +307,7 @@ public class PlayerAttack : MonoBehaviour
         if (Input.GetKeyDown(gatlingModeKey)) SetTestMode(WeaponTestMode.Gatling);
         if (Input.GetKeyDown(knockbackModeKey)) SetTestMode(WeaponTestMode.Knockback);
         if (Input.GetKeyDown(cannonModeKey)) SetTestMode(WeaponTestMode.Cannon);
+        if (Input.GetKeyDown(shotgunModeKey)) SetTestMode(WeaponTestMode.Shotgun);
     }
 
     private void SetTestMode(WeaponTestMode mode)
@@ -328,6 +385,169 @@ public class PlayerAttack : MonoBehaviour
                 sr.sprite = knockbackWeaponSprite;
             }
         }
+
+        if (shotgunVisual != null && shotgunWeaponSprite != null)
+        {
+            SpriteRenderer sr = shotgunVisual.GetComponent<SpriteRenderer>();
+            if (sr != null)
+            {
+                sr.sprite = shotgunWeaponSprite;
+            }
+        }
+    }
+
+    private void UpdateShotgunAttack()
+    {
+        if (shotgunVisual == null) return;
+
+        Vector2 aimPoint;
+        bool hasTarget = TryGetBestShotgunAimPoint(out aimPoint);
+        Vector2 dir = hasTarget ? (aimPoint - (Vector2)centerPos).normalized : GetFixedHorizontalDirection();
+        if (dir.sqrMagnitude < 0.001f)
+        {
+            dir = GetFixedHorizontalDirection();
+        }
+
+        float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
+
+        shotgunVisual.transform.position = centerPos + (Vector3)(dir * 0.32f);
+        shotgunVisual.transform.rotation = Quaternion.Euler(0f, 0f, angle);
+
+        SpriteRenderer sr = shotgunVisual.GetComponent<SpriteRenderer>();
+        if (sr != null)
+        {
+            sr.flipY = dir.x < 0f;
+        }
+
+        if (!hasTarget || Time.time < nextShotgunTime) return;
+
+        FireShotgunBurst(angle, shotgunVisual.transform.position);
+        nextShotgunTime = Time.time + shotgunCooldown;
+    }
+
+    private bool TryGetBestShotgunAimPoint(out Vector2 aimPoint)
+    {
+        GameObject[] enemies = GameObject.FindGameObjectsWithTag("Enemy");
+        int bestClusterCount = -1;
+        float bestDistanceToPlayer = float.MaxValue;
+        Vector2 bestPoint = Vector2.zero;
+        bool found = false;
+
+        for (int i = 0; i < enemies.Length; i++)
+        {
+            GameObject candidateEnemy = enemies[i];
+            if (candidateEnemy == null || !candidateEnemy.activeInHierarchy) continue;
+
+            Vector2 candidatePoint = candidateEnemy.transform.position;
+            float distanceToPlayer = Vector2.Distance(centerPos, candidatePoint);
+            if (distanceToPlayer > shotgunRange) continue;
+
+            int clusterCount = 0;
+            for (int j = 0; j < enemies.Length; j++)
+            {
+                GameObject nearbyEnemy = enemies[j];
+                if (nearbyEnemy == null || !nearbyEnemy.activeInHierarchy) continue;
+
+                if (Vector2.Distance(candidatePoint, nearbyEnemy.transform.position) <= shotgunClusterRadius)
+                {
+                    clusterCount++;
+                }
+            }
+
+            if (!found || clusterCount > bestClusterCount || (clusterCount == bestClusterCount && distanceToPlayer < bestDistanceToPlayer))
+            {
+                found = true;
+                bestClusterCount = clusterCount;
+                bestDistanceToPlayer = distanceToPlayer;
+                bestPoint = candidatePoint;
+            }
+        }
+
+        aimPoint = bestPoint;
+        return found;
+    }
+
+    private void EnsureShotgunVisualReady()
+    {
+        if (shotgunVisual == null) return;
+
+        SpriteRenderer sr = shotgunVisual.GetComponent<SpriteRenderer>();
+        if (sr == null) return;
+
+        if (sr.sprite == null)
+        {
+            if (shotgunWeaponSprite != null)
+            {
+                sr.sprite = shotgunWeaponSprite;
+            }
+            else if (rifleVisual != null)
+            {
+                SpriteRenderer rifleSr = rifleVisual.GetComponent<SpriteRenderer>();
+                if (rifleSr != null)
+                {
+                    sr.sprite = rifleSr.sprite;
+                }
+            }
+        }
+
+        sr.enabled = true;
+        sr.color = Color.white;
+        shotgunVisual.transform.localScale = Vector3.one * shotgunVisualScale;
+        if (sr.sortingOrder < saberSortingOrder)
+        {
+            sr.sortingOrder = saberSortingOrder;
+        }
+    }
+
+    private void FireShotgunBurst(float centerAngle, Vector2 spawnPos)
+    {
+        GameObject pelletPrefab = shotgunBulletPrefab != null ? shotgunBulletPrefab : rifleBulletPrefab;
+        if (pelletPrefab == null) return;
+
+        int pelletCount = Mathf.Max(1, shotgunPelletCount);
+        float spreadHalf = shotgunSpreadAngle * 0.5f;
+
+        for (int i = 0; i < pelletCount; i++)
+        {
+            float t = pelletCount == 1 ? 0.5f : (float)i / (pelletCount - 1);
+            float pelletAngle = centerAngle + Mathf.Lerp(-spreadHalf, spreadHalf, t);
+
+            GameObject proj = FireProjectile(pelletPrefab, pelletAngle, spawnPos, shotgunBulletSpeed);
+            PlayerProjectile pp = proj.GetComponent<PlayerProjectile>();
+            if (pp != null)
+            {
+                pp.lifeTime = shotgunRange / shotgunBulletSpeed;
+                pp.minAttack = shotgunMinDamage;
+                pp.maxAttack = shotgunMaxDamage;
+                pp.isPiercing = false;
+                pp.knockbackForce = shotgunKnockbackForce;
+                pp.projectileTint = shotgunProjectileColor;
+                pp.useDamageFalloff = true;
+                pp.falloffStartRatio = 0.3f;
+                pp.minDamageMultiplier = 0.55f;
+            }
+        }
+    }
+
+    private static void ApplyKnockbackToEnemy(Collider2D hit, Vector2 pushDir, float force)
+    {
+        if (hit == null) return;
+
+        Rigidbody2D enemyRb = hit.attachedRigidbody;
+        if (enemyRb != null)
+        {
+            enemyRb.velocity += pushDir * force;
+            return;
+        }
+
+        Wizard wizard = hit.GetComponent<Wizard>();
+        if (wizard != null)
+        {
+            wizard.ApplyExternalKnockback(pushDir, force);
+            return;
+        }
+
+        hit.transform.position = (Vector2)hit.transform.position + pushDir * (force * 0.14f);
     }
 
     private void EnsureSaberVisualReady()
@@ -426,15 +646,7 @@ public class PlayerAttack : MonoBehaviour
                 enemy.TakenDamage(dmg);
 
                 Vector2 pushDir = ((Vector2)hit.transform.position - (Vector2)centerPos).normalized;
-                Rigidbody2D enemyRb = hit.attachedRigidbody;
-                if (enemyRb != null)
-                {
-                    enemyRb.velocity += pushDir * (knockbackPushDistance * 8f);
-                }
-                else
-                {
-                    hit.transform.position = (Vector2)hit.transform.position + pushDir * knockbackPushDistance;
-                }
+                ApplyKnockbackToEnemy(hit, pushDir, knockbackPushDistance * 8f);
 
                 if (hitEffectPref != null)
                 {

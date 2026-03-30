@@ -8,15 +8,31 @@ public class PlayerProjectile : MonoBehaviour
     public int maxAttack = 10;
     public float lifeTime = 2f;
     public bool isPiercing = false; // 是否贯穿
+    public float knockbackForce = 0f;
+    public Color projectileTint = Color.white;
+
+    [Header("Shotgun Falloff")]
+    public bool useDamageFalloff = false;
+    public float falloffStartRatio = 0.35f;
+    public float minDamageMultiplier = 0.55f;
 
     public GameObject hitEffect;
     public GameObject damageCanvas;
 
     private List<Collider2D> hitEnemies = new List<Collider2D>();
     private bool destroyedByHit = false;
+    private Vector2 spawnPosition;
 
     private void Start()
     {
+        spawnPosition = transform.position;
+
+        SpriteRenderer sr = GetComponent<SpriteRenderer>();
+        if (sr != null)
+        {
+            sr.color = projectileTint;
+        }
+
         // 自动销毁
         Destroy(gameObject, lifeTime);
     }
@@ -80,7 +96,41 @@ public class PlayerProjectile : MonoBehaviour
             if (enemy != null && !enemy.isAttack)
             {
                 int attackDamage = Random.Range(minAttack, maxAttack);
+
+                if (useDamageFalloff)
+                {
+                    float maxTravel = Mathf.Max(0.01f, speed * lifeTime);
+                    float startDistance = maxTravel * Mathf.Clamp01(falloffStartRatio);
+                    float traveled = Vector2.Distance(spawnPosition, other.transform.position);
+                    float t = Mathf.InverseLerp(startDistance, maxTravel, traveled);
+                    float damageScale = Mathf.Lerp(1f, Mathf.Clamp(minDamageMultiplier, 0.1f, 1f), t);
+                    attackDamage = Mathf.Max(1, Mathf.RoundToInt(attackDamage * damageScale));
+                }
+
                 enemy.TakenDamage(attackDamage);
+
+                if (knockbackForce > 0f)
+                {
+                    Vector2 pushDir = ((Vector2)other.transform.position - (Vector2)transform.position).normalized;
+                    if (pushDir.sqrMagnitude < 0.001f)
+                    {
+                        pushDir = transform.right;
+                    }
+
+                    Rigidbody2D enemyRb = other.attachedRigidbody;
+                    if (enemyRb != null)
+                    {
+                        enemyRb.velocity += pushDir * knockbackForce;
+                    }
+                    else if (other.TryGetComponent<Wizard>(out var wizard))
+                    {
+                        wizard.ApplyExternalKnockback(pushDir, knockbackForce);
+                    }
+                    else
+                    {
+                        other.transform.position = (Vector2)other.transform.position + pushDir * (knockbackForce * 0.05f);
+                    }
+                }
 
                 // 播放命中特效
                 if (hitEffect != null)

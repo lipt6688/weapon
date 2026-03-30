@@ -10,6 +10,8 @@ public class Wizard : MonoBehaviour, ITakenDamage
     private Transform target;
 
     private bool canMove;
+    private Vector2 externalKnockbackVelocity;
+    private float externalKnockbackTimer;
 
     //TODO Totally similiar with Enemy script, LATER interface or inheritence
 
@@ -41,7 +43,14 @@ public class Wizard : MonoBehaviour, ITakenDamage
 
     private void Update()
     {
-        if(canMove)
+        if (externalKnockbackTimer > 0f)
+        {
+            externalKnockbackTimer -= Time.deltaTime;
+            transform.position = (Vector2)transform.position + externalKnockbackVelocity * Time.deltaTime;
+            externalKnockbackVelocity = Vector2.Lerp(externalKnockbackVelocity, Vector2.zero, Time.deltaTime * 12f);
+        }
+
+        if(canMove && externalKnockbackTimer <= 0f)
             Move();
 
         Flip();
@@ -119,6 +128,16 @@ public class Wizard : MonoBehaviour, ITakenDamage
     {
         yield return new WaitForSeconds(0.2f);
         isAttack = false;
+    }
+
+    public void ApplyExternalKnockback(Vector2 direction, float force)
+    {
+        Vector2 dir = direction.sqrMagnitude > 0.0001f ? direction.normalized : Vector2.right;
+        externalKnockbackVelocity += dir * (force * 2.4f);
+        if (externalKnockbackTimer < 0.12f)
+        {
+            externalKnockbackTimer = 0.12f;
+        }
     }
 
     private void OnTriggerEnter2D(Collider2D other)

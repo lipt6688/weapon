@@ -1,0 +1,8 @@
+/[Ll]ibrary/
+/[Tt]emp/
+/[Obj]j/
+/[Build]/
+/[Logs]/
+/[UserSettings]/
+*.sln
+*.csproj
