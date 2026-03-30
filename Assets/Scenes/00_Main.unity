@@ -2292,28 +2292,30 @@ MonoBehaviour:
   saberAttackRange: 4
   saberThrustDistance: 2.4
   saberThrustDuration: 0.22
-  saberMinAttack: 18
-  saberMaxAttack: 30
+  saberMinAttack: 24
+  saberMaxAttack: 38
   saberHitRadius: 0.9
   rifleVisual: {fileID: 1766238149}
   rifleAttackRate: 0.8
   rifleAttackRange: 18
   rifleBulletSpeed: 45
-  rifleMinDamage: 70
-  rifleMaxDamage: 125
+  rifleMinDamage: 90
+  rifleMaxDamage: 155
   rifleBulletPrefab: {fileID: 6929075588084033075, guid: bed9ff2216bb1160386a20a4fb0190e5,
     type: 3}
   cannonVisual: {fileID: 1342288330}
   cannonCooldown: 4
   cannonAoeRadius: 6.5
+  cannonMinDamage: 45
+  cannonMaxDamage: 75
   cannonballPrefab: {fileID: 6617758943155987166, guid: e958431909adff015918818261d3f9d8,
     type: 3}
   gatlingVisual: {fileID: 1319742791}
   gatlingAttackRate: 20
   gatlingAttackRange: 8
   gatlingBulletSpeed: 28
-  gatlingMinDamage: 4
-  gatlingMaxDamage: 8
+  gatlingMinDamage: 6
+  gatlingMaxDamage: 10
   gatlingOrbitRadius: 1.2
   gatlingOrbitAngularSpeed: 5
   gatlingBulletPrefab: {fileID: 6929075588084033075, guid: 26e0e2c0e55ffda29ba5855cbe6dc3de,
@@ -2325,8 +2327,8 @@ MonoBehaviour:
   knockbackRotationSpeed: 220
   knockbackHitRadius: 0.55
   knockbackHitCooldown: 0.35
-  knockbackMinDamage: 7
-  knockbackMaxDamage: 12
+  knockbackMinDamage: 10
+  knockbackMaxDamage: 16
   knockbackPushDistance: 0.45
 --- !u!1 &139736645
 GameObject:
@@ -3386,6 +3388,7 @@ RectTransform:
   - {fileID: 1206558674}
   - {fileID: 44062084}
   - {fileID: 1304714488}
+  - {fileID: 1304715598}
   m_Father: {fileID: 854611894}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -3538,6 +3541,7 @@ MonoBehaviour:
   - {fileID: 1206558675}
   - {fileID: 44062085}
   - {fileID: 1304714489}
+  - {fileID: 1304715599}
   gameOverAnim: {fileID: 1031840521}
 --- !u!4 &1173004311
 Transform:
@@ -3764,6 +3768,82 @@ CanvasRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1304714487}
+  m_CullTransparentMesh: 0
+--- !u!1 &1304715597
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 7
+  m_Component:
+  - component: {fileID: 1304715598}
+  - component: {fileID: 1304715600}
+  - component: {fileID: 1304715599}
+  m_Layer: 5
+  m_HasEditorInfo: 1
+  m_Name: Image (3)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &1304715598
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1304715597}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 992309907}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 358.16, y: -45.09999}
+  m_SizeDelta: {x: 100, y: 100}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &1304715599
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1304715597}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 21300000, guid: ecd1b19e29f2a41b8a2a01d91822c302, type: 3}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!222 &1304715600
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1304715597}
   m_CullTransparentMesh: 0
 --- !u!1 &1319742791
 GameObject:
@@ -6472,7 +6552,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3a68063bdba6f4e9a8b51d25f72bf3da, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHp: 3
+  maxHp: 4
   hp: 0
   isAttacked: 0
 --- !u!850595691 &2101734490

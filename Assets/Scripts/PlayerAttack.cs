@@ -31,8 +31,8 @@ public class PlayerAttack : MonoBehaviour
     public float saberAttackRange = 4f;
     public float saberThrustDistance = 2.4f;
     public float saberThrustDuration = 0.22f;
-    public int saberMinAttack = 18;
-    public int saberMaxAttack = 30;
+    public int saberMinAttack = 60;
+    public int saberMaxAttack = 90;
     public float saberHitRadius = 0.9f;
 
     private float nextSaberTime;
@@ -43,12 +43,12 @@ public class PlayerAttack : MonoBehaviour
 
     [Header("1. 步枪 (狙击枪: 高伤害/低射速)")]
     public GameObject rifleVisual;
-    public float rifleAttackRate = 0.8f;
+    public float rifleAttackRate = 0.99f;
     [Tooltip("步枪的最远射程限制")]
     public float rifleAttackRange = 18f;
     public float rifleBulletSpeed = 45f;
-    public int rifleMinDamage = 70;
-    public int rifleMaxDamage = 125;
+    public int rifleMinDamage = 100;
+    public int rifleMaxDamage = 120;
     public GameObject rifleBulletPrefab;
     private float nextRifleTime;
 
@@ -56,6 +56,8 @@ public class PlayerAttack : MonoBehaviour
     public GameObject cannonVisual;
     public float cannonCooldown = 3.5f;
     public float cannonAoeRadius = 6.5f;
+    public int cannonMinDamage = 200;
+    public int cannonMaxDamage = 260;
     public GameObject cannonballPrefab;
     private float nextCannonTime;
 
@@ -64,8 +66,8 @@ public class PlayerAttack : MonoBehaviour
     public float gatlingAttackRate = 20f;
     public float gatlingAttackRange = 8f;
     public float gatlingBulletSpeed = 28f;
-    public int gatlingMinDamage = 4;
-    public int gatlingMaxDamage = 8;
+    public int gatlingMinDamage = 30;
+    public int gatlingMaxDamage = 40;
     public float gatlingOrbitRadius = 1.2f;
     public float gatlingOrbitAngularSpeed = 5f;
     public GameObject gatlingBulletPrefab;
@@ -78,8 +80,8 @@ public class PlayerAttack : MonoBehaviour
     public float knockbackRotationSpeed = 220f;
     public float knockbackHitRadius = 0.55f;
     public float knockbackHitCooldown = 0.35f;
-    public int knockbackMinDamage = 7;
-    public int knockbackMaxDamage = 12;
+    public int knockbackMinDamage = 40;
+    public int knockbackMaxDamage = 60;
     public float knockbackPushDistance = 0.45f;
 
     private float knockbackAngle = 0f;
@@ -359,6 +361,8 @@ public class PlayerAttack : MonoBehaviour
         {
             cb.targetPos = targetLocation;
             cb.aoeRadius = cannonAoeRadius;
+            cb.minDamage = cannonMinDamage;
+            cb.maxDamage = cannonMaxDamage;
             cb.boomEffect = hitEffectPref;
             cb.damageCanvas = damageCanvasPref;
         }
